@@ -1,0 +1,47 @@
+{# *********************************************************************************************************************
+ * Projet: Phpmesure
+ * Auteur: Tristan Fleury - tristan.fleury.gre@gmail.com
+ * Année de production: 2017
+ * Licence: GNU General Public License (GPL), version 3
+ * Copyright © 2017 Tristan Fleury
+ ********************************************************************************************************************* #}
+
+{# Barre de navigation de gauche. Inclue par le template base.html.twig #}
+
+<nav class="navbar-default navbar-side" role="navigation">
+    <div class="sidebar-collapse">
+        <ul class="nav" id="main-menu">
+            <li class="text-center">
+                <img src="{{ asset('bundles/viducphpmesureserveur/images/logo.jpg') }}" alt="PHPMESURE" 
+                    class="user-image img-responsive"/>
+            </li>
+            <li>
+                <a id="tableauDeBord" href="{{ path('viducphpmesureserveur_index') }}">
+                    <i class="fa fa-dashboard fa-3x"></i> Tableau de bord</a>
+            </li>					
+            <li>
+                <a href="#"><i class="fa fa-bar-chart-o fa-3x"></i> Mesures<span class="fa arrow"></span></a>
+                <ul class="nav nav-second-level">
+                    {% for application in applications %}
+                    <li>
+                        <a id="{{ application.application }}" href="{{ path('viducphpmesureserveur_application',
+                            {'application':application.application}) }}">{{ application.application }}</a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </li>	
+        </ul>
+    </div>
+</nav>
+                    
+<script type="text/javascript">
+    /*
+     * Fonction qui applique la class css active-menu sur le menu actif
+     * La variable activeMenu doit exister (envoyée depuis le controller)
+     */
+    $(function() {
+        {% if activeMenu is defined %}
+            $("#{{activeMenu}}").addClass("active-menu");
+        {% endif %}
+});
+</script>

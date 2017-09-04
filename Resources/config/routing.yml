@@ -6,7 +6,10 @@
 # * Copyright © 2017 Tristan Fleury
 # **********************************************************************************************************************/
 
+viducphpmesureserveur_index:
+    path:     /
+    defaults: { _controller: viducphpmesureserveurBundle:Default:index }
 
-#viducphpmesureserveur_homepage:
-#    path:     /
-#    defaults: { _controller: viducphpmesureserveurBundle:Default:index }
+viducphpmesureserveur_application:
+    path:     /application/{application}
+    defaults: { _controller: viducphpmesureserveurBundle:Default:application, application:null }

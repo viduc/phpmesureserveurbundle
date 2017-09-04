@@ -26,7 +26,13 @@ class Configuration implements ConfigurationInterface
     {
         $treeBuilder = new TreeBuilder();
         $rootNode = $treeBuilder->root('viducphpmesureserveur');
-
+        $rootNode
+            ->children()
+                ->scalarNode('portEcoute')
+                    ->defaultValue('67543')
+                    ->end()
+            ->end()
+        ;
         return $treeBuilder;
     }
 }

@@ -42,7 +42,36 @@ $bundles = [
 ```
 ### Configuration
 
+Ajouter dans le fichier config.yml ces lignes 
+```
+# app/config/config.php
+doctrine:
+    orm:
+        # ...
+        mappings:
+            viducphpmesureserveurBundle:
+            type: annotation
+            is_bundle: true
+            alias: viducphpmesureserveur
+```
+puis a la fin du fichier ajouter le port sur lequel le serveur doit écouter:
+```
+# app/config/config.php
+...
+    viducphpmesureserveur:
+        portEcoute: "port de mon serveur phpmesure"
+```
 
+
+ajouter le fichier routing dans la confugration des routes de l'application:
+
+```
+# app/config/routing.yml
+...
+phpmesureserveur:
+    resource: '@viducphpmesureserveurBundle/Resources/config/routing.yml'
+    prefix: /phpmesureserveur
+```
 
 ## Exécuter les tests
 
