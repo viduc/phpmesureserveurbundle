@@ -14,30 +14,30 @@ use Doctrine\Common\Collections\ArrayCollection;
 /**
  * Mesure
  *
- * @ORM\Table(name="application")
- * @ORM\Entity(repositoryClass="viduc\phpmesureserveurBundle\Repository\ApplicationRepository")
+ * @ORM\Table(name="classname")
+ * @ORM\Entity(repositoryClass="viduc\phpmesureserveurBundle\Repository\ClassnameRepository")
  */
-class Application
+class Classname
 {
     /**
-     * @ORM\OneToMany(targetEntity="Mesure", mappedBy="applications")
+     * @ORM\ManyToOne(targetEntity="Application", inversedBy="applications")
+     * @ORM\JoinColumn(name="application_id", referencedColumnName="id")
      */
-    private $mesures;
+    private $application;
     
-    /**
-     * @ORM\OneToMany(targetEntity="Classname", mappedBy="classnames")
-     */
-    private $classnames;
-
     /**
      * @ORM\OneToMany(targetEntity="Methode", mappedBy="methodes")
      */
     private $methodes;
     
+    /**
+     * @ORM\OneToMany(targetEntity="Mesure", mappedBy="mesures")
+     */
+    private $mesures;
+
     public function __construct()
     {
         $this->mesures = new ArrayCollection();
-        $this->classnames = new ArrayCollection();
         $this->methodes = new ArrayCollection();
     }
     
@@ -51,12 +51,12 @@ class Application
     private $id;
 
     /**
-     * @var string
-     *
-     * @ORM\Column(name="application", type="string", length=255)
+     * @var String 
+     * 
+     * @ORM\Column(name="classname", type="string", length=255)
      */
-    private $application;
-
+    private $classname;
+    
     /**
      * @var string
      *
@@ -91,9 +91,9 @@ class Application
     /**
      * Set application
      *
-     * @param string $application
+     * @param Application $application
      *
-     * @return Application
+     * @return Classname
      */
     public function setApplication($application)
     {
@@ -105,13 +105,37 @@ class Application
     /**
      * Get application
      *
-     * @return string
+     * @return Application
      */
     public function getApplication()
     {
         return $this->application;
     }
 
+    /**
+     * Set classname
+     *
+     * @param string $classname
+     *
+     * @return Classname
+     */
+    public function setClassname($classname)
+    {
+        $this->classname = $classname;
+
+        return $this;
+    }
+
+    /**
+     * Get classname
+     *
+     * @return string
+     */
+    public function getClassname()
+    {
+        return $this->classname;
+    }
+    
     /**
      * Set description
      *
@@ -159,74 +183,6 @@ class Application
     {
         return $this->date;
     }
-    
-    /**
-     * Add mesure
-     *
-     * @param \viduc\phpmesureserveurBundle\Entity\Mesure $mesure
-     *
-     * @return Application
-     */
-    public function addMesure(\viduc\phpmesureserveurBundle\Entity\Mesure $mesure)
-    {
-        $this->mesures[] = $mesure;
-
-        return $this;
-    }
-
-    /**
-     * Remove mesure
-     *
-     * @param \viduc\phpmesureserveurBundle\Entity\Mesure $mesure
-     */
-    public function removeMesure(\viduc\phpmesureserveurBundle\Entity\Mesure $mesure)
-    {
-        $this->mesures->removeElement($mesure);
-    }
-
-    /**
-     * Get mesures
-     *
-     * @return \Doctrine\Common\Collections\Collection
-     */
-    public function getMesures()
-    {
-        return $this->mesures;
-    }    
- 
-    /**
-     * Add classname
-     *
-     * @param \viduc\phpmesureserveurBundle\Entity\Classname $classname
-     *
-     * @return Application
-     */
-    public function addClassname(\viduc\phpmesureserveurBundle\Entity\Classname $classname)
-    {
-        $this->classnames[] = $classname;
-
-        return $this;
-    }
-
-    /**
-     * Remove classname
-     *
-     * @param \viduc\phpmesureserveurBundle\Entity\Classname $classname
-     */
-    public function removeClassname(\viduc\phpmesureserveurBundle\Entity\Classname $classname)
-    {
-        $this->classnames->removeElement($classname);
-    }
-
-    /**
-     * Get classnames
-     *
-     * @return \Doctrine\Common\Collections\Collection
-     */
-    public function getClassnames()
-    {
-        return $this->classnames;
-    } 
 
     /**
      * Add methode
@@ -261,6 +217,40 @@ class Application
     {
         return $this->methodes;
     }
+    
+    /**
+     * Add mesure
+     *
+     * @param \viduc\phpmesureserveurBundle\Entity\Mesure $mesure
+     *
+     * @return Classname
+     */
+    public function addMesure(\viduc\phpmesureserveurBundle\Entity\Mesure $mesure)
+    {
+        $this->mesures[] = $mesure;
+
+        return $this;
+    }
+
+    /**
+     * Remove mesure
+     *
+     * @param \viduc\phpmesureserveurBundle\Entity\Mesure $mesure
+     */
+    public function removeMesure(\viduc\phpmesureserveurBundle\Entity\Mesure $mesure)
+    {
+        $this->mesures->removeElement($mesure);
+    }
+
+    /**
+     * Get mesures
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getMesures()
+    {
+        return $this->mesures;
+    }    
     
     /**
      * Set vie

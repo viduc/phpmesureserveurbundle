@@ -16,6 +16,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 use viduc\phpmesureserveurBundle\Entity\Mesure;
 use viduc\phpmesureserveurBundle\Entity\Application;
+use viduc\phpmesureserveurBundle\Entity\Classname;
+use viduc\phpmesureserveurBundle\Entity\Methode;
 
 class PhpmesureEcouteurCommand extends ContainerAwareCommand
 {
@@ -60,6 +62,7 @@ class PhpmesureEcouteurCommand extends ContainerAwareCommand
             /* récupération du service em */
             $em = $this->getContainer()->get('doctrine')->getManager();
             
+            /* récupération / création de l'enregistrement Application */
             $repository = $em->getRepository(Application::class);
             $application = $repository->findOneByApplication($json->application);
             if(!$application){
@@ -69,16 +72,44 @@ class PhpmesureEcouteurCommand extends ContainerAwareCommand
                 $application->setDate(new \DateTime('NOW'));
                 $application->setVie(true);
             }
-            /* récupération / création de l'enregistrement Application */
+            
+            /* récupération / création de l'enregistrement Classname */
+            $repository = $em->getRepository(Classname::class);
+            $classname = $repository->findOneBy(array('application' => $application, 'classname' => $json->classname));
+            if(!$classname){
+                $classname = new Classname();
+                $classname->setApplication($application);
+                $classname->setClassname($json->classname);
+                $classname->setDescription("Class enregistrée via écouteur du serveur");
+                $classname->setDate(new \DateTime('NOW'));
+                $classname->setVie(true);
+            }
+
+            /* récupération / création de l'enregistrement Methode */
+            $repository = $em->getRepository(Methode::class);
+            $methode = $repository->findOneBy(
+                array('application' => $application, 'classname' => $classname, 'methode' => $json->methode));
+            if(!$methode){
+                $methode = new Methode();
+                $methode->setApplication($application);
+                $methode->setClassname($classname);
+                $methode->setMethode($json->methode);
+                $methode->setDescription("Methode enregistrée via écouteur du serveur");
+                $methode->setDate(new \DateTime('NOW'));
+                $methode->setVie(true);
+            }
             
             $mesure = new Mesure();
             $mesure->setApplication($application);
-            $mesure->setMethode($json->methode);
+            $mesure->setClassname($classname);
+            $mesure->setMethode($methode);
             $mesure->setDate(new \DateTime());
             $mesure->setIp($from);
             $mesure->setDuree($json->duree);
             
             $em->persist($application);
+            $em->persist($classname);
+            $em->persist($methode);
             $em->persist($mesure);
             $em->flush();
         }

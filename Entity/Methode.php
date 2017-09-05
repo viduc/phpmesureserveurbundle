@@ -9,32 +9,37 @@
 namespace viduc\phpmesureserveurBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * Mesure
  *
- * @ORM\Table(name="mesure")
- * @ORM\Entity(repositoryClass="viduc\phpmesureserveurBundle\Repository\MesureRepository")
+ * @ORM\Table(name="methode")
+ * @ORM\Entity(repositoryClass="viduc\phpmesureserveurBundle\Repository\MethodeRepository")
  */
-class Mesure
+class Methode
 {
     /**
-     * @ORM\ManyToOne(targetEntity="Application", inversedBy="mesures")
+     * @ORM\ManyToOne(targetEntity="Application", inversedBy="applications")
      * @ORM\JoinColumn(name="application_id", referencedColumnName="id")
      */
     private $application;
-
+ 
     /**
-     * @ORM\ManyToOne(targetEntity="Classname", inversedBy="mesures")
+     * @ORM\ManyToOne(targetEntity="Classname", inversedBy="classnames")
      * @ORM\JoinColumn(name="classname_id", referencedColumnName="id")
      */
     private $classname;
     
     /**
-     * @ORM\ManyToOne(targetEntity="Methode", inversedBy="methodes")
-     * @ORM\JoinColumn(name="methodee_id", referencedColumnName="id")
+     * @ORM\OneToMany(targetEntity="Mesure", mappedBy="mesures")
      */
-    private $methode;
+    private $mesures;
+
+    public function __construct()
+    {
+        $this->mesures = new ArrayCollection();
+    }
     
     /**
      * @var int
@@ -46,26 +51,32 @@ class Mesure
     private $id;
 
     /**
+     * @var String 
+     * 
+     * @ORM\Column(name="methode", type="string", length=255)
+     */
+    private $methode;
+    
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="description", type="string", length=255)
+     */
+    private $description;
+
+    /**
      * @var \DateTime
      *
      * @ORM\Column(name="date", type="datetime")
      */
     private $date;
-
-    /**
-     * @var string
+    
+        /**
+     * @var Boolean
      *
-     * @ORM\Column(name="ip", type="string", length=50)
+     * @ORM\Column(name="vie", type="boolean")
      */
-    private $ip;
-
-    /**
-     * @var float
-     *
-     * @ORM\Column(name="duree", type="float")
-     */
-    private $duree;
-
+    private $vie;
 
     /**
      * Get id
@@ -82,7 +93,7 @@ class Mesure
      *
      * @param Application $application
      *
-     * @return Mesure
+     * @return Classname
      */
     public function setApplication($application)
     {
@@ -106,7 +117,7 @@ class Mesure
      *
      * @param Classname $classname
      *
-     * @return Mesure
+     * @return Methode
      */
     public function setClassname($classname)
     {
@@ -124,13 +135,13 @@ class Mesure
     {
         return $this->classname;
     }
-    
+ 
     /**
      * Set methode
      *
-     * @param Methode $methode
+     * @param string $methode
      *
-     * @return Mesure
+     * @return Methode
      */
     public function setMethode($methode)
     {
@@ -142,11 +153,35 @@ class Mesure
     /**
      * Get methode
      *
-     * @return Methode
+     * @return string
      */
     public function getMethode()
     {
         return $this->methode;
+    }
+    
+    /**
+     * Set description
+     *
+     * @param string $description
+     *
+     * @return Application
+     */
+    public function setDescription($description)
+    {
+        $this->description = $description;
+
+        return $this;
+    }
+
+    /**
+     * Get description
+     *
+     * @return string
+     */
+    public function getDescription()
+    {
+        return $this->description;
     }
 
     /**
@@ -172,52 +207,62 @@ class Mesure
     {
         return $this->date;
     }
-
+    
     /**
-     * Set ip
+     * Add mesure
      *
-     * @param string $ip
+     * @param \viduc\phpmesureserveurBundle\Entity\Mesure $mesure
      *
-     * @return Mesure
+     * @return Classname
      */
-    public function setIp($ip)
+    public function addMesure(\viduc\phpmesureserveurBundle\Entity\Mesure $mesure)
     {
-        $this->ip = $ip;
+        $this->mesures[] = $mesure;
 
         return $this;
     }
 
     /**
-     * Get ip
+     * Remove mesure
      *
-     * @return string
+     * @param \viduc\phpmesureserveurBundle\Entity\Mesure $mesure
      */
-    public function getIp()
+    public function removeMesure(\viduc\phpmesureserveurBundle\Entity\Mesure $mesure)
     {
-        return $this->ip;
+        $this->mesures->removeElement($mesure);
     }
 
     /**
-     * Set dur�ee
+     * Get mesures
      *
-     * @param float $duree
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getMesures()
+    {
+        return $this->mesures;
+    }    
+    
+    /**
+     * Set vie
+     *
+     * @param Boolean $vie
      *
      * @return Mesure
      */
-    public function setDuree($duree)
+    public function setVie($vie)
     {
-        $this->duree = $duree;
+        $this->vie = $vie;
 
         return $this;
     }
 
     /**
-     * Get duree
+     * Get vie
      *
-     * @return float
+     * @return Boolean
      */
-    public function getDuree()
+    public function getVie()
     {
-        return $this->duree;
-    }
+        return $this->vie;
+    }    
 }
