@@ -22,7 +22,7 @@
             <li>
                 <a href="#"><i class="fa fa-bar-chart-o fa-3x"></i> Mesures<span class="fa arrow"></span></a>
                 <ul class="nav nav-second-level">
-                    {% for application in applications %}
+                    {% for application in configurationVue.applications %}
                     <li>
                         <a id="{{ application.application }}" href="{{ path('viducphpmesureserveur_application',
                             {'application':application.application}) }}">{{ application.application }}</a>
@@ -40,8 +40,8 @@
      * La variable activeMenu doit exister (envoyée depuis le controller)
      */
     $(function() {
-        {% if activeMenu is defined %}
-            $("#{{activeMenu}}").addClass("active-menu");
+        {% if configurationVue.activeMenu is defined %}
+            $("#{{configurationVue.activeMenu}}").addClass("active-menu");
         {% endif %}
 });
 </script>

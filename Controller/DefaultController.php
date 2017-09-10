@@ -12,16 +12,35 @@ namespace viduc\phpmesureserveurBundle\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use viduc\phpmesureserveurBundle\Entity\Mesure;
 use viduc\phpmesureserveurBundle\Entity\Application;
+use viduc\phpmesureserveurBundle\Entity\Classname;
 
 class DefaultController extends Controller
 {
 
+    /**
+     * Date de la dernière connexion de l'utilisateur connecté
+     * @var String 
+     */
     private $dernierAcces;
+    
+    /**
+     * Menu sélectionné lors du dernier appel
+     * @var String 
+     */
     private $activeMenu;
     
+    /**
+     * Liste des applications enregistrées et en vie
+     * @var type 
+     */
+    private $listeDesApplications;
+    
+    /**
+     * Constructeur de la class
+     */
     public function __construct() 
     {
-        $this->setDernierAcces("01 janvier 1970"); // a implémenter
+        
     }
     
     /**
@@ -32,8 +51,7 @@ class DefaultController extends Controller
     {
         $this->setActiveMenu("tableauDeBord");
         return $this->render('viducphpmesureserveurBundle:Default:index.html.twig',
-            array('dernierAcces'=>$this->getDernierAcces(), 'activeMenu'=>$this->getActiveMenu(),
-                'applications'=>$this->getListeApplication()));
+            array('configurationVue'=>$this->getConfigurationVue()));
     }
     
     /**
@@ -48,82 +66,72 @@ class DefaultController extends Controller
         $applicationDB = $em->getRepository(Application::class)->findOneBy(array('application'=>$application));
         
         return $this->render('viducphpmesureserveurBundle:Default:application.html.twig',
-            array('dernierAcces'=>$this->getDernierAcces(), 'activeMenu'=>$this->getActiveMenu(),
-                'applications'=>$this->getListeApplication(),'application'=>$applicationDB,
-                'listeMethode'=>$this->getListeMethode($applicationDB)));
+            array('configurationVue'=>$this->getConfigurationVue(),'application'=>$applicationDB,
+                'listeMesure'=>$this->getListeMesure($applicationDB)));
     }
     
     /**
-     * Récupère la liste des applications actives
+     * Récupère les éléments de configuration standard pour les vues
+     * Doit être passer en paramètre du render: 'configurationVue'=>$this->getConfigurationVue()
+     * @return Array
      */
-    public function getListeApplication()
+    private function getConfigurationVue()
     {
-        $em = $this->getDoctrine()->getManager();
-        return $em->getRepository(Application::class)->findBy(array('vie'=>true));
+        if(is_null($this->getDernierAcces())){$this->setDernierAcces("01 janvier 1970");} // a implémenter
+        if(is_null($this->getlisteDesApplications())){$this->genererListeApplication();}
+        $retour["dernierAcces"] = $this->getDernierAcces();
+        $retour["applications"] = $this->getlisteDesApplications();
+        $retour["activeMenu"] = $this->getActiveMenu();
+        return $retour;
     }
     
     
-    private function getListeMethode($application)
+    /**
+     * Génère la liste des applications actives depuis la base de données
+     */
+    private function genererListeApplication()
     {
         $em = $this->getDoctrine()->getManager();
-        $mesures = $em->getRepository(Mesure::class);
-        
-        $methodes = $mesures->createQueryBuilder('mesure')
-        ->select('mesure')
-        ->where('mesure.application = :application')
-        ->setParameter('application', $application)
-        ->distinct()
-        ->getQuery();
-        $listeMethode = null;
-        foreach($methodes->getResult() as $methode){
-            $listeMethode[$methode->getMethode()]['nbr'] = 
-                $this->getNombreUtilisationMethode($application,$methode->getMethode());
-            $listeMethode[$methode->getMethode()]['temps'] = 
-                $this->getTempsExecutionMethode($application,$methode->getMethode(),$interval=null);
-        }
-        return $listeMethode;
+        $this->setListeDesApplications($em->getRepository(Application::class)->findBy(array('vie'=>true)));
     }
     
     /**
      * 
-     * @param type $methode
-     * @param type $interval
+     * @param type $application
      * @return type
      */
-    private function getNombreUtilisationMethode($application,$methode, $interval=null)
+    private function getListeMesure($application)
     {
         $em = $this->getDoctrine()->getManager();
-        $qb = $em->getRepository(Mesure::class)->createQueryBuilder('a');
-        $qb->select('COUNT(a)');
-        $qb->where('a.application = :application');
-        $qb->andWhere('a.methode = :methode');
-        $qb->setParameter('methode', $methode);
-        $qb->setParameter('application', $application);
-        if(!$interval){
+        $mesuresEM = $em->getRepository(Mesure::class);
+        $mesures = $mesuresEM->findBy(array('application' => $application));
+        $listeMesures = null;
+        foreach($mesures as $mesure){
+            if(isset($listeMesures[$mesure->getClassname()->getClassname()][$mesure->getMethode()->getMethode()]
+                ["nbr"])){
+                $listeMesures[$mesure->getClassname()->getClassname()][$mesure->getMethode()->getMethode()]["nbr"] = 
+                $listeMesures[$mesure->getClassname()->getClassname()][$mesure->getMethode()->getMethode()]["nbr"]+1;
+            }
+            else{
+                $listeMesures[$mesure->getClassname()->getClassname()][$mesure->getMethode()->getMethode()]["nbr"] = 1;
+            }
+            if(isset($listeMesures[$mesure->getClassname()->getClassname()][$mesure->getMethode()->getMethode()]
+                ["duree"])){
+                $listeMesures[$mesure->getClassname()->getClassname()][$mesure->getMethode()->getMethode()]["duree"] =
+                $listeMesures[$mesure->getClassname()->getClassname()][$mesure->getMethode()->getMethode()]["duree"] + 
+                    $mesure->getDuree();
+            }
+            else{
+                $listeMesures[$mesure->getClassname()->getClassname()][$mesure->getMethode()->getMethode()]["duree"] =
+                    $mesure->getDuree();    
+            }     
         }
-        return $qb->getQuery()->getSingleScalarResult();
-    }
-    
-    
-    private function getTempsExecutionMethode($application,$methode,$interval=null)
-    {
-        $nbr = $this->getNombreUtilisationMethode($application,$methode,$interval);
-        $em = $this->getDoctrine()->getManager();
-        
-        $qb = $em->getRepository(Mesure::class)->createQueryBuilder('mesure');
-        $qb->select('mesure');
-        $qb->where('mesure.application = :application');
-        $qb->andWhere('mesure.methode = :methode');
-        $qb->setParameter('methode', $methode);
-        $qb->setParameter('application', $application);
-        $mesures = $qb->getQuery()->getResult();
-        
-        $additionTemps = null;
-        foreach($mesures as $mesure)
-        {
-            $additionTemps += $mesure->getDuree();
+        foreach($listeMesures as $class=>$mesures){
+            foreach($mesures as $methode=>$mesure){
+                $listeMesures[$class][$methode]["duree"] = $mesure["duree"] = $mesure["duree"] / $mesure["nbr"];
+            }
         }
-        return $additionTemps/$nbr;
+        return $listeMesures;
     }
     
     
@@ -135,7 +143,7 @@ class DefaultController extends Controller
      * @param String $dernierAcces - la date du dernier accès de l'utilisateur
      * @return $this
      */
-    public function setDernierAcces($dernierAcces)
+    private function setDernierAcces($dernierAcces)
     {
         $this->dernierAcces = $dernierAcces;
         return $this;
@@ -145,7 +153,7 @@ class DefaultController extends Controller
      * Getter dernierAcces
      * @return String
      */
-    public function getDernierAcces()
+    private function getDernierAcces()
     {
         return $this->dernierAcces;
     }
@@ -155,7 +163,7 @@ class DefaultController extends Controller
      * @param String $activeMenu - Le menu actif
      * @return $this
      */
-    public function setActiveMenu($activeMenu)
+    private function setActiveMenu($activeMenu)
     {
         $this->activeMenu = $activeMenu;
         return $this;
@@ -165,8 +173,28 @@ class DefaultController extends Controller
      * Getter activeMenu
      * @return String
      */
-    public function getActiveMenu()
+    private function getActiveMenu()
     {
         return $this->activeMenu;
-    }    
+    }   
+    
+    /**
+     * Setter listeDesApplications
+     * @param Array $listeDesApplications - Liste des applications enregistrées
+     * @return $this
+     */
+    private function setListeDesApplications($listeDesApplications)
+    {
+        $this->listeDesApplications = $listeDesApplications;
+        return $this;
+    }
+    
+    /**
+     * Getter listeDesApplications
+     * @return Array
+     */
+    private function getlisteDesApplications()
+    {
+        return $this->listeDesApplications;
+    }     
 }

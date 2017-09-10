@@ -22,8 +22,10 @@
     </div>              
     <!-- /entête de page  -->  
 
-    {{ dump(listeMethode) }}
-    
+    {{dump(listeMesure)}}
+
+    {% set tempId = 1 %}
+    {% for keyClass, class in listeMesure %}    
     <div class="row">
         <div class="col-md-6 col-sm-12 col-xs-12">           
             <div class="panel panel-back noti-box">
@@ -31,74 +33,149 @@
                     <i class="fa fa-bar-chart-o"></i>
                 </span>
                 <div class="text-box" >
-                    <p class="main-text">Utilisation</p>
-                    <p class="text-muted">de xx a xx</p>
+                    <p class="main-text">{{ application.application }}</p>
+                    <p class="text-muted">{{ keyClass }}</p>
                 </div>
-                <div id="container" style="min-width: 310px; max-width: 800px; height: 400px; margin: 0 auto"></div>                         
+                <div id="nbr{{tempId}}" style="min-width: 310px; max-width: 800px; height: 400px; margin: 0 auto">
+                </div>
+                    <script type="text/javascript">
+                        var categories = new Array();
+                        var data = new Array();
+                        {% for keyMethode, methode in class %}
+                            categories.push('{{keyMethode}}');
+                            data.push({{methode.nbr}});
+                        {% endfor %}
+                        Highcharts.chart('nbr'+{{tempId}}, {
+                            chart: {
+                                type: 'bar'
+                            },
+                            title: {
+                                text: "Nombre d'utilisation des méthodes de la class"
+                            },
+                            xAxis: {
+                                categories: categories,
+                                title: {
+                                    text: null
+                                }
+                            },
+                            yAxis: {
+                                min: 0,
+                                title: {
+                                    text: 'Utilisation ',
+                                    align: 'high'
+                                },
+                                labels: {
+                                    overflow: 'justify'
+                                }
+                            },
+                            tooltip: {
+                                valueSuffix: ''
+                            },
+                            plotOptions: {
+                                bar: {
+                                    dataLabels: {
+                                        enabled: true
+                                    }
+                                }
+                            },
+                            legend: {
+                                layout: 'vertical',
+                                align: 'right',
+                                verticalAlign: 'top',
+                                x: -40,
+                                y: 60,
+                                floating: true,
+                                borderWidth: 1,
+                                backgroundColor: ((Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'),
+                                shadow: true
+                            },
+                            credits: {
+                                enabled: false
+                            },
+                            series: [{
+                                name: 'utilisation',
+                                data: data
+                            }]
+                        });
+                    </script>
             </div>    
         </div>   
-
-        {% set tempArray = "" %}
-        {% for key in listeMethode|keys %}
-            {% set tempArray = tempArray~"'"~key~"'," %}
-        {% endfor %}
-        {{tempArray}}
+        <div class="col-md-6 col-sm-12 col-xs-12">
+        <div class="panel panel-back noti-box">
+                <span class="icon-box bg-color-red set-icon">
+                    <i class="fa fa-bar-chart-o"></i>
+                </span>
+                <div class="text-box" >
+                    <p class="main-text">{{ application.application }}</p>
+                    <p class="text-muted">{{ keyClass }}</p>
+                </div>
+                <div id="duree{{tempId}}" style="min-width: 310px; max-width: 800px; height: 400px; margin: 0 auto">
+                </div>
+                    <script type="text/javascript">
+                        var categories = new Array();
+                        var data = new Array();
+                        {% for keyMethode, methode in class %}
+                            categories.push('{{keyMethode}}');
+                            data.push({{methode.duree}});
+                        {% endfor %}
+                        Highcharts.chart('duree'+{{tempId}}, {
+                            chart: {
+                                type: 'bar'
+                            },
+                            title: {
+                                text: "Temps d'exécution des méthodes de la class"
+                            },
+                            xAxis: {
+                                categories: categories,
+                                title: {
+                                    text: null
+                                }
+                            },
+                            yAxis: {
+                                min: 0,
+                                title: {
+                                    text: "temps d'exécution ",
+                                    align: 'high'
+                                },
+                                labels: {
+                                    overflow: 'justify'
+                                }
+                            },
+                            tooltip: {
+                                valueSuffix: ''
+                            },
+                            plotOptions: {
+                                bar: {
+                                    dataLabels: {
+                                        enabled: true
+                                    }
+                                }
+                            },
+                            legend: {
+                                layout: 'vertical',
+                                align: 'right',
+                                verticalAlign: 'top',
+                                x: -40,
+                                y: 60,
+                                floating: true,
+                                borderWidth: 1,
+                                backgroundColor: ((Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'),
+                                shadow: true
+                            },
+                            credits: {
+                                enabled: false
+                            },
+                            series: [{
+                                name: "temps d'exécution ",
+                                data: data
+                            }]
+                        });
+                    </script>
+            </div>                        
+        </div> 
+        {% set tempId = tempId+1 %}  
     </div>
-    
-    <script type="text/javascript">
-        
-        Highcharts.chart('container', {
-            chart: {
-                type: 'bar'
-            },
-            title: {
-                text: "Nombre d'utilisation des méthodes de l'application"
-            },
-        xAxis: {
-            categories: [{{ tempArray }}],
-            title: {
-                text: null
-            }
-        },
-        yAxis: {
-            min: 0,
-            title: {
-                text: 'Utilisation ',
-                align: 'high'
-            },
-            labels: {
-                overflow: 'justify'
-            }
-        },
-        tooltip: {
-            valueSuffix: ''
-        },
-        plotOptions: {
-            bar: {
-                dataLabels: {
-                    enabled: true
-                }
-            }
-        },
-        legend: {
-            layout: 'vertical',
-            align: 'right',
-            verticalAlign: 'top',
-            x: -40,
-            y: 60,
-            floating: true,
-            borderWidth: 1,
-            backgroundColor: ((Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'),
-            shadow: true
-        },
-        credits: {
-            enabled: false
-        },
-    series: [{
-        name: 'utilisation',
-        data: [3, 5, 2]
-    }]
-});
-    </script>
+    {% endfor %}             
+
 {% endblock %}
 
