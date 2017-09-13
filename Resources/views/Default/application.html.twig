@@ -39,6 +39,18 @@
                 <div id="nbr{{tempId}}" style="min-width: 310px; max-width: 800px; height: 400px; margin: 0 auto">
                 </div>
                     <script type="text/javascript">
+                        Math.easeOutBounce = function (pos) {
+                            if ((pos) < (1 / 2.75)) {
+                                return (7.5625 * pos * pos);
+                            }
+                            if (pos < (2 / 2.75)) {
+                                return (7.5625 * (pos -= (1.5 / 2.75)) * pos + 0.75);
+                            }
+                            if (pos < (2.5 / 2.75)) {
+                                return (7.5625 * (pos -= (2.25 / 2.75)) * pos + 0.9375);
+                            }
+                            return (7.5625 * (pos -= (2.625 / 2.75)) * pos + 0.984375);
+                        };
                         var categories = new Array();
                         var data = new Array();
                         {% for keyMethode, methode in class %}
@@ -72,9 +84,10 @@
                                 valueSuffix: ''
                             },
                             plotOptions: {
-                                bar: {
-                                    dataLabels: {
-                                        enabled: true
+                                series: {
+                                    animation: {
+                                        duration: 2000,
+                                        easing: 'easeOutBounce'
                                     }
                                 }
                             },
@@ -112,6 +125,7 @@
                 <div id="duree{{tempId}}" style="min-width: 310px; max-width: 800px; height: 400px; margin: 0 auto">
                 </div>
                     <script type="text/javascript">
+                        
                         var categories = new Array();
                         var data = new Array();
                         {% for keyMethode, methode in class %}
@@ -120,8 +134,8 @@
                         {% endfor %}
                         Highcharts.chart('duree'+{{tempId}}, {
                             chart: {
-                                type: 'bar'
-                            },
+                                type: 'column'
+                            },     
                             title: {
                                 text: "Temps d'exécution des méthodes de la class"
                             },
@@ -145,10 +159,21 @@
                                 valueSuffix: ''
                             },
                             plotOptions: {
-                                bar: {
-                                    dataLabels: {
-                                        enabled: true
-                                    }
+                                series: {
+                                    animation: {
+                                        duration: 2000,
+                                        easing: 'easeOutBounce'
+                                    },
+            events: {
+                click: function (event) {
+                    var out = '';
+    for (var i in event) {
+        out += i + ": " + event[i] + "\n";
+    }
+
+    alert(out);
+                }
+            }
                                 }
                             },
                             legend: {
@@ -166,7 +191,7 @@
                                 enabled: false
                             },
                             series: [{
-                                name: "temps d'exécution ",
+                                name: "temps d'exécution",
                                 data: data
                             }]
                         });
