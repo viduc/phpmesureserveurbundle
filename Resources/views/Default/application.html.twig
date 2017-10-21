@@ -11,8 +11,9 @@
     
 
 {% block body %} 
-    <script src="https://code.highcharts.com/highcharts.js"></script>
-    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <link rel="stylesheet" href="{{ asset('bundles/viducphpmesureserveur/css/flot.css') }}" rel='stylesheet' />
+    <script type="text/javascript" src="{{ asset('bundles/viducphpmesureserveur/js/flot/jquery.flot.min.js') }}" ></script>
+    <script type="text/javascript" src="{{ asset('bundles/viducphpmesureserveur/js/flot/jquery.flot.categories.min.js') }}" ></script>
     <!-- entête de page  -->                   
     <div class="row">
         <div class="col-md-12">
@@ -24,183 +25,90 @@
 
     {{dump(listeMesure)}}
 
+    <div class="row">
+        <div class="col-md-6 col-sm-12 col-xs-12">           
+            <div class="panel noti-box">           
+                <span class="icon-box bg-color-red set-icon">
+                    <i class="fa fa-bar-chart-o"></i>
+                </span>
+                <div class="text-box" >
+                    <p class="text-info text-center">nombre d'utilisation des méthodes</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-sm-12 col-xs-12">           
+            <div class="panel noti-box">           
+                <span class="icon-box bg-color-red set-icon">
+                    <i class="fa fa-line-chart"></i>
+                </span>
+                <div class="text-box" >
+                    <p class="text-info text-center">temps d'exécution des méthodes</p>
+                </div>
+            </div>
+        </div>
+    </div>
     {% set tempId = 1 %}
     {% for keyClass, class in listeMesure %}    
     <div class="row">
         <div class="col-md-6 col-sm-12 col-xs-12">           
-            <div class="panel panel-back noti-box">
-                <span class="icon-box bg-color-red set-icon">
-                    <i class="fa fa-bar-chart-o"></i>
-                </span>
+            <div class="panel noti-box">           
                 <div class="text-box" >
-                    <p class="main-text">{{ application.application }}</p>
-                    <p class="text-muted">{{ keyClass }}</p>
+                    <p class="text-warning">{{ keyClass }}</p>
                 </div>
-                <div id="nbr{{tempId}}" style="min-width: 310px; max-width: 800px; height: 400px; margin: 0 auto">
+                <div class="flot-container">
+                    <div id="placeholder{{tempId}}" class="flot-placeholder"></div>
                 </div>
-                    <script type="text/javascript">
-                        Math.easeOutBounce = function (pos) {
-                            if ((pos) < (1 / 2.75)) {
-                                return (7.5625 * pos * pos);
-                            }
-                            if (pos < (2 / 2.75)) {
-                                return (7.5625 * (pos -= (1.5 / 2.75)) * pos + 0.75);
-                            }
-                            if (pos < (2.5 / 2.75)) {
-                                return (7.5625 * (pos -= (2.25 / 2.75)) * pos + 0.9375);
-                            }
-                            return (7.5625 * (pos -= (2.625 / 2.75)) * pos + 0.984375);
-                        };
-                        var categories = new Array();
-                        var data = new Array();
-                        {% for keyMethode, methode in class %}
-                            categories.push('{{keyMethode}}');
-                            data.push({{methode.nbr}});
-                        {% endfor %}
-                        Highcharts.chart('nbr'+{{tempId}}, {
-                            chart: {
-                                type: 'bar'
-                            },
-                            title: {
-                                text: "Nombre d'utilisation des méthodes de la class"
-                            },
-                            xAxis: {
-                                categories: categories,
-                                title: {
-                                    text: null
-                                }
-                            },
-                            yAxis: {
-                                min: 0,
-                                title: {
-                                    text: 'Utilisation ',
-                                    align: 'high'
-                                },
-                                labels: {
-                                    overflow: 'justify'
-                                }
-                            },
-                            tooltip: {
-                                valueSuffix: ''
-                            },
-                            plotOptions: {
-                                series: {
-                                    animation: {
-                                        duration: 2000,
-                                        easing: 'easeOutBounce'
-                                    }
-                                }
-                            },
-                            legend: {
-                                layout: 'vertical',
-                                align: 'right',
-                                verticalAlign: 'top',
-                                x: -40,
-                                y: 60,
-                                floating: true,
-                                borderWidth: 1,
-                                backgroundColor: ((Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'),
-                                shadow: true
-                            },
-                            credits: {
-                                enabled: false
-                            },
-                            series: [{
-                                name: 'utilisation',
-                                data: data
-                            }]
-                        });
-                    </script>
-            </div>    
-        </div>   
-        <div class="col-md-6 col-sm-12 col-xs-12">
-        <div class="panel panel-back noti-box">
-                <span class="icon-box bg-color-red set-icon">
-                    <i class="fa fa-bar-chart-o"></i>
-                </span>
-                <div class="text-box" >
-                    <p class="main-text">{{ application.application }}</p>
-                    <p class="text-muted">{{ keyClass }}</p>
-                </div>
-                <div id="duree{{tempId}}" style="min-width: 310px; max-width: 800px; height: 400px; margin: 0 auto">
-                </div>
-                    <script type="text/javascript">
-                        
-                        var categories = new Array();
-                        var data = new Array();
-                        {% for keyMethode, methode in class %}
-                            categories.push('{{keyMethode}}');
-                            data.push({{methode.duree}});
-                        {% endfor %}
-                        Highcharts.chart('duree'+{{tempId}}, {
-                            chart: {
-                                type: 'column'
-                            },     
-                            title: {
-                                text: "Temps d'exécution des méthodes de la class"
-                            },
-                            xAxis: {
-                                categories: categories,
-                                title: {
-                                    text: null
-                                }
-                            },
-                            yAxis: {
-                                min: 0,
-                                title: {
-                                    text: "temps d'exécution ",
-                                    align: 'high'
-                                },
-                                labels: {
-                                    overflow: 'justify'
-                                }
-                            },
-                            tooltip: {
-                                valueSuffix: ''
-                            },
-                            plotOptions: {
-                                series: {
-                                    animation: {
-                                        duration: 2000,
-                                        easing: 'easeOutBounce'
-                                    },
-            events: {
-                click: function (event) {
-                    var out = '';
-    for (var i in event) {
-        out += i + ": " + event[i] + "\n";
-    }
-
-    alert(out);
-                }
-            }
-                                }
-                            },
-                            legend: {
-                                layout: 'vertical',
-                                align: 'right',
-                                verticalAlign: 'top',
-                                x: -40,
-                                y: 60,
-                                floating: true,
-                                borderWidth: 1,
-                                backgroundColor: ((Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'),
-                                shadow: true
-                            },
-                            credits: {
-                                enabled: false
-                            },
-                            series: [{
-                                name: "temps d'exécution",
-                                data: data
-                            }]
-                        });
-                    </script>
-            </div>                        
-        </div> 
+            </div>
+        </div>
         {% set tempId = tempId+1 %}  
     </div>
-    {% endfor %}             
-
+    {% endfor %}  
+    
+    <div class="row">
+        <div class="col-md-6">
+            
+        </div>
+    </div>
+    
+     
+    <script type="text/javascript">
+        {% set tempId = 1 %}
+        {% for keyClass, class in listeMesure %}
+        $(function() 
+        {
+            var data = [];
+            {% for keymethode, methode in class %}
+                var methode = [];
+                methode.push("{{ keymethode }}");
+                methode.push({{ methode.nbr }});
+                data.push(methode);
+            {% endfor %} 
+            $.plot("#placeholder{{ tempId }}", [ data ], {
+                series: {
+                    bars: {
+                        show: true,
+                        barWidth: 0.1,
+                        align: "center"
+                    }
+                },
+                xaxis: {
+                    mode: "categories",
+                    tickLength: 0
+                },
+                grid: {
+                    clickable: true
+                },
+                colors: ["#d18b2c", "#dba255", "#919733"]
+            });
+            $("#placeholder{{tempId}}").bind("plotclick", function (event, pos, item) {
+                if (item) {
+                    alert(data[item.dataIndex][0]);
+                }
+            });
+        });        
+        {% set tempId = tempId+1 %} 
+        {% endfor %}  
+        
+    </script>
 {% endblock %}
 
